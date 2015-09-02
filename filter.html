@@ -1,0 +1,55 @@
+<!-- demonstrate angular filter  -->
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>angular filter</title>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+</head>
+<body>
+<div class="container">
+    <div ng-controller="myCtrl">
+        <ul>
+            <li ng-hide="items.length">no data</li>
+            <li><a class="panel" ng-repeat="i in items | orderBy:'category' | unique:'category'">
+                <strong>{{i.category}}</strong>
+            </a></li>
+        </ul>
+    </div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/angular/angular.min.js"></script>
+<script src="js/angular/angular-route.min.js"></script>
+<script type="text/javascript">
+    var myApp = angular.module('myApp', ['cusFilter']);
+
+    myApp.controller('myCtrl', function ($scope) {
+        $scope.items = [
+            {category: 'c1', desc: 'desc of c1', name: 'name', price: '20', proId: '1'},
+            {category: 'a1', desc: 'desc of a1', name: 'whatever', price: '10', proId: '2'},
+            {category: 'cd1', desc: 'desc of cd1', name: 'hello', price: '15', proId: '3'},
+            {category: 'c1', desc: 'desc of c12', name: 'world', price: '20', proId: '4'},
+            {category: 'a1', desc: 'desc of a12', name: 'specific name', price: '18', proId: '5'}
+        ];
+    })
+
+    angular.module('cusFilter', [])
+            .filter('unique', function () { // return unique value of categories
+                return function (items, propertyName) {
+                    var keys = {};
+                    var rtnResult = [];
+                    angular.forEach(items, function (item, index) {
+                        if (angular.isObject(item) && propertyName in item) {
+                            var val = item[propertyName];
+                            if (angular.isUndefined(keys[val])) {
+                                keys[val] = 'true';
+                                rtnResult.push(item);
+                            }
+                        }
+                    })
+                    return rtnResult;
+                }
+            })
+</script>
+</body>
+</html>

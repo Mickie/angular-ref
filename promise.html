@@ -1,0 +1,58 @@
+<!-- demonstrate promises  -->
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>angular promises</title>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+</head>
+<body>
+<div class="container" ng-controller="myCtrl" promise-worker>
+    <button class="btn btn-primary">button1</button>
+    <button class="btn btn-primary">button2</button>
+    <button class="btn btn-primary">button3</button>
+    Result:<span promise-observer></span>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/angular/angular.min.js"></script>
+<script src="js/angular/angular-route.min.js"></script>
+<script type="text/javascript">
+    var myApp = angular.module('myApp', []);
+
+    myApp.controller('myCtrl', function ($scope) {
+
+    })
+    //promises are only supposed to work only once
+    myApp.directive('promiseWorker', function ($q) {
+        var deferred = $q.defer();
+        return{
+            link: function (scope, element, attrs) {
+                element.find('button').on('click', function (event) {
+                    var btnText = event.target.innerText;
+                    if (btnText == 'button2') {
+                        deferred.reject('this is the reason');
+                    } else {
+                        deferred.resolve(btnText + ' has been clicked');
+                    }
+                })
+            },
+            controller: function ($scope, $element, $attrs) {
+                this.primise = deferred.promise;
+            }
+        }
+    })
+            .directive('promiseObserver', function () { //name definition is tricky
+                return{
+                    require: "^promiseWorker",
+                    link: function (scope, element, attrs, ctrl) {
+                        ctrl.primise.then(function (result) {
+                            element.text(result);
+                        }, function (reason) {
+                            element.text('err: ' + reason);
+                        })
+                    }
+                }
+            })
+</script>
+</body>
+</html>

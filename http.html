@@ -1,0 +1,151 @@
+<!-- demonstrate services for ajax  -->
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>angular load data from backend</title>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+    <style>td, th {
+        text-align: center;
+    }</style>
+</head>
+<body>
+<div class="container" ng-controller="myCtrl">
+    <table class="table table-responsive table-stripped table-hover table-bordered">
+        <thead>
+        <tr>
+            <th>proId</th>
+            <th>name</th>
+            <th>desc</th>
+            <th>category</th>
+            <th>price</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-hide="items.length">
+            <td colspan="5">no Data</td>
+        </tr>
+        <tr ng-repeat="i in items">
+            <td>{{i.proId}}</td>
+            <td>{{i.name}}</td>
+            <td>{{i.desc}}</td>
+            <td>{{i.category}}</td>
+            <td>{{i.price | currency:'$ ':2}}usd</td>
+        </tr>
+        <tr>
+            <td colspan="5">
+                <button class="btn btn-primary" ng-click="loadData()">loadDataFromJsonFile</button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="5">
+                <button class="btn btn-primary" ng-click="loadDataXMLHttpProvider()">loadDataFromXMLFileHttpProvider
+                </button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="5">
+                <button class="btn btn-primary" ng-click="loadDataXMLpreConfig()">loadDataFromXMLFilePreConfig</button>
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/angular/angular.min.js"></script>
+<script src="js/angular/angular-route.min.js"></script>
+<script type="text/javascript">
+    var myApp = angular.module('myApp', []);
+
+    myApp.controller('myCtrl', function ($scope, $http) {
+        $scope.loadData = function () {
+            $http.get('data.json').then(function (res) {
+                $scope.items = res.data;
+            },function () {
+                alert('error');
+            }).finally(function () {
+                        console.log('finished');
+                    })
+        }
+
+        $scope.loadDataXML = function () {
+            $scope.items = [];
+            $http.get('data.xml').then(function (res) {
+                var datas = angular.element(res.data.trim()).find('item');
+                for (var i = 0, len = datas.length; i < len; i++) {
+                    var data = datas.eq(i);
+                    $scope.items.push(
+                            {
+                                category: data.attr('category'),
+                                desc: data.attr('desc'),
+                                name: data.attr('name'),
+                                price: data.attr('price'),
+                                proId: data.attr('proId')
+                            }
+                    )
+                }
+            })
+        }
+
+        //pre-config before get response
+        $scope.loadDataXMLpreConfig = function () {
+            var config = {
+                transformResponse: function (res, headers) {
+                    if (headers('content-type') == "application/xml") {
+                        var items = [];
+                        var datas = angular.element(res.trim()).find('item');
+                        for (var i = 0, len = datas.length; i < len; i++) {
+                            var data = datas.eq(i);
+                            items.push(
+                                    {
+                                        category: data.attr('category'),
+                                        desc: data.attr('desc'),
+                                        name: data.attr('name'),
+                                        price: data.attr('price'),
+                                        proId: data.attr('proId')
+                                    }
+                            )
+                        }
+                        return items;
+                    }
+                }
+            };
+            $http.get('data.xml', config).success(function (data) {
+                $scope.items = data;
+            })
+        }
+
+        $scope.loadDataXMLHttpProvider = function () {
+            $http.get('data.xml').success(function (data) {
+                $scope.items = data;
+            })
+        }
+    })
+
+    myApp.config(function ($httpProvider) {
+        $httpProvider.defaults.transformResponse.push(function (res, headers) {
+            if (headers('content-type') == "application/xml") {
+                var items = [];
+                var datas = angular.element(res.trim()).find('item');
+                for (var i = 0, len = datas.length; i < len; i++) {
+                    var data = datas.eq(i);
+                    items.push(
+                            {
+                                category: data.attr('category'),
+                                desc: data.attr('desc'),
+                                name: data.attr('name'),
+                                price: data.attr('price'),
+                                proId: data.attr('proId')
+                            }
+                    )
+                }
+                return items;
+            } else {
+                return res;
+            }
+        })
+    })
+</script>
+</body>
+</html>

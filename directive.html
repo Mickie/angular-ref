@@ -1,0 +1,144 @@
+<!-- demonstrate angular directive ,factory provider -->
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>angular directive</title>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+</head>
+<body>
+<div class="container">
+    <div ng-controller="myCtrl">
+        <ul>
+            <li ng-hide="items.length">no data</li>
+            <li><a class="panel" ng-repeat="i in items | orderBy:'category' | unique:'category'"
+                   ng-click="selectCategory(i.category)">
+                <strong>{{i.category}}</strong>
+            </a></li>
+        </ul>
+        <div class="well" ng-repeat=" i in items | filter:categoryFilter">
+            <h4>name:{{i.name}}</h4>
+            <h6>category:{{i.category}}</h6>
+            <span class="label-info">{{i.price |currency:'$ ':2}}</span>
+            <button class="btn btn-primary pull-right" ng-click="addToCart(i)" ng-show="!isInCart(i)">add to cart
+            </button>
+            <button class="btn btn-primary pull-right" ng-click="removeFrCart(i)" ng-show="isInCart(i)">remove from
+                cart
+            </button>
+        </div>
+    </div>
+    <cart></cart>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/angular/angular.min.js"></script>
+<script src="js/angular/angular-route.min.js"></script>
+<script type="text/javascript">
+    var myApp = angular.module('myApp', ['cusFilter','cart','cusFactory']);
+
+    myApp.controller('myCtrl', function ($scope, cartHelper) {
+        var desiredCategory = null;
+        $scope.items = [
+            {category: 'c1', desc: 'desc of c1', name: 'name', price: '20', proId: '1'},
+            {category: 'a1', desc: 'desc of a1', name: 'whatever', price: '10', proId: '2'},
+            {category: 'cd1', desc: 'desc of cd1', name: 'hello', price: '15', proId: '3'},
+            {category: 'c1', desc: 'desc of c12', name: 'world', price: '20', proId: '4'},
+            {category: 'a1', desc: 'desc of a12', name: 'specific name', price: '18', proId: '5'}
+        ];
+        $scope.selectCategory = function (c) {
+            desiredCategory = c;
+        }
+        $scope.categoryFilter = function (item) {
+            return item.category == desiredCategory || desiredCategory == null;
+        }
+
+        $scope.addToCart = function (i) {
+            cartHelper.addToCart(i);
+        }
+
+        $scope.removeFrCart = function (i) {
+            cartHelper.rmFrCart(i);
+        }
+
+        $scope.isInCart = function (i) {
+            var r = cartHelper.ifInCart(i);
+            return !!r || r == 0;
+        }
+    })
+
+    angular.module('cusFactory',[])
+        .factory('cartHelper', function () {
+        var cartItems = [];
+        return {
+            getCartItems: function () {
+                return cartItems;
+            },
+            addToCart: function (item) {
+                if (angular.isObject(item) && 'proId' in item) {
+                    cartItems.push(item);
+                }
+            },
+            rmFrCart: function (item) {
+                if (angular.isObject(item) && 'proId' in item) {
+                    var index = this.ifInCart(item);
+                    if (!!index || index == 0) {
+                        cartItems.splice(index, 1);
+                    }
+                }
+            },
+            totals: function () {
+                var prices = 0;
+                angular.forEach(cartItems, function (i) {
+                    prices += parseInt(i.price);
+                })
+                return prices;
+            },
+            ifInCart: function (item) {
+                var theIndex = null;
+                if (angular.isObject(item) && 'proId' in item) {
+                    angular.forEach(cartItems, function (i, index) {
+                        if (i.proId == item.proId) {
+                            theIndex = index;
+                        }
+                    })
+                    return theIndex;
+                }
+            }
+        }
+    })
+    angular.module('cart', [])
+            .directive('cart', function () {
+                return {
+                    restrict: 'E',
+                    templateUrl: 'cart.html',
+                    controller: function ($scope, cartHelper) {
+                        $scope.items = function () {
+                            var datas = cartHelper.getCartItems();
+                            return datas.length;
+                        };
+                        $scope.totals = function () {
+                            return cartHelper.totals();
+                        }
+                    }
+                }
+            })
+
+    angular.module('cusFilter', [])
+            .filter('unique', function () { // return unique value of categories
+                return function (items, propertyName) {
+                    var keys = {};
+                    var rtnResult = [];
+                    angular.forEach(items, function (item, index) {
+                        if (angular.isObject(item) && propertyName in item) {
+                            var val = item[propertyName];
+                            if (angular.isUndefined(keys[val])) {
+                                keys[val] = 'true';
+                                rtnResult.push(item);
+                            }
+                        }
+                    })
+                    return rtnResult;
+                }
+            })
+</script>
+</body>
+</html>
