@@ -1,0 +1,57 @@
+<!-- demonstrate directive scope -->
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>customize directive with isolated scope</title>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+</head>
+<body>
+<div class="container" ng-controller="parentCtrl">
+    <p>Parent Div : the location is {{data.city}}</p>
+    <div city="data.city"  cusDirect change="changeBack()"></div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/angular/angular.min.js"></script>
+<script src="js/angular/angular-route.min.js"></script>
+<script type="text/javascript">
+    var myApp = angular.module('myApp', []);
+
+    myApp.controller('parentCtrl',function($scope){
+       $scope.data ={'city':'shanghai'};
+
+       $scope.changeBack = function(){
+          $scope.data={'city':'florida'};
+       }
+    });
+
+    myApp.directive('cusdirect',function(){
+        return {
+            restrict:"EA",
+            scope:{
+                'localCity':'=city',
+                'change':'&' //do know why scope variable name matters and "&" insteadof "&propName"
+            },
+            template:function(){
+                return "<p>directive Div: the location is {{localCity}}</p>"+
+                       "<button>change city</button><br><button>call parent change</button>";
+            },
+            link:function(scope,element,attrs){
+                var btn1 = angular.element(element.find('button')[0]);
+                var btn2 = angular.element(element.find('button')[1]);
+                btn1.on('click',function(){
+                    scope.$apply(function(){  // update directive parent scope manually
+                        scope.localCity="seattle";
+                    })
+                });
+                btn2.on('click',function(){
+                   scope.$apply(function(){
+                       scope.change();
+                   })
+                })
+            }
+        }
+    });
+</script>
+</body>
+</html>

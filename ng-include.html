@@ -1,0 +1,25 @@
+<!-- demonstrate include directive in html -->
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>angular load data from backend</title>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+    <style>td, th {
+        text-align: center;
+    }</style>
+</head>
+<body>
+<div class="container">
+    myCtrl
+   <div ng-include="'included.html'"></div>
+    <div ng-include="'included.html'"></div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/angular/angular.min.js"></script>
+<script src="js/angular/angular-route.min.js"></script>
+<script type="text/javascript">
+    var myApp = angular.module('myApp', []);
+</script>
+</body>
+</html>
