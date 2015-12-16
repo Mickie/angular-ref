@@ -1,0 +1,14 @@
+<div class="title-wrap" >
+    <div class="list-title">看看朋友们手气如何</div>
+</div>
+<div class="lists">
+    <div ng-repeat="data in datas" class="list-item">
+        <img src="imgs/sample.png" class="img-thumbnail list-img">
+        <p class="list-detail ls">
+            <span class="name" ng-bind="data.name"></span>
+            <span class='time' ng-bind="data.time"></span>
+        </p>
+        <p class='list-detail' ng-bind="data.comment"></p>
+        <span class='score' ng-bind="data.score">14分</span>
+    </div>
+</div>

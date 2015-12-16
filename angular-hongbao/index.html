@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="EN" ng-app="promotion">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="shortcut icon" href="">
+    <title>this is the title</title>
+    <link rel="stylesheet" href="lib/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="css/core.css" type="text/css">
+</head>
+<body>
+    <div class="wrapper" ng-controller="defCtrl">
+        <div class="banner"><img class="banner-img" src="imgs/bg.png"></div>
+        <!--初始化页面 -->
+        <div class="main " id="pro-init" ng-show=" curPage =='init'">
+            <div ng-include="'init.html'"></div>
+        </div>
+        <!--抢成功页面 -->
+        <div class="main " id="pro-success" ng-show="curPage == 'success'">
+            <div ng-include="'success.html'"></div>
+        </div>
+        <!--已强过页面 -->
+        <div class="main " id="pro-dup" ng-show="curPage == 'dup'">
+            <div ng-include="'dup.html'"></div>
+        </div>
+        <!--已抢光-->
+        <div class="main" id="pro-end" ng-show="curPage == 'end'">
+            <div ng-include="'end.html'"></div>
+        </div>
+        <!-- 朋友列表-->
+        <div class="lists-wrap" ng-hide="curPage == 'accex' || !datas.length">
+            <div ng-include="'list.html'"></div>
+        </div>
+        <!-- 活动规则-->
+        <div ng-class="{'ins-wrap':true,'ins-wrap1':!datas.length}" ng-hide="curPage =='accex'">
+            <div ng-include="'desc.html'"></div>
+        </div>
+
+        <div class="main" id="pro-accex" ng-show="curPage == 'accex'">
+            <div ng-include="'revise.html'"></div>
+        </div>
+    </div>
+<script type="text/javascript" src="lib/angular/angular.min.js"></script>
+<script type="text/javascript" src="lib/angular/angular-route.min.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
